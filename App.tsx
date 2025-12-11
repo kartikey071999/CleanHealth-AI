@@ -1,12 +1,12 @@
 
 import React, { useState, useRef } from 'react';
 import { Upload, FileText, Activity, AlertCircle, ArrowLeft, File as FileIcon, Image as ImageIcon, X, ChevronRight, Stethoscope, FileSearch, MessageCircle, Zap, Shield, Globe, Heart, Brain } from 'lucide-react';
-import { AnalysisType, AnalysisResult, ProcessingState } from '../types';
-import { analyzeDocument, FileData } from '../services/ai/geminiService';
-import { ThinkingIndicator } from '../components/common/ThinkingIndicator';
-import { AnalysisView } from '../features/analysis/AnalysisView';
-import { ChatWidget } from '../features/chat/ChatWidget';
-import { APP_NAME, SAMPLE_PROMPTS, SAMPLE_REPORT_TEXT } from '../config/constants';
+import { AnalysisType, AnalysisResult, ProcessingState } from './types';
+import { analyzeDocument, FileData } from './services/geminiService';
+import { ThinkingIndicator } from './components/ThinkingIndicator';
+import { AnalysisView } from './components/AnalysisView';
+import { ChatWidget } from './components/ChatWidget';
+import { APP_NAME, SAMPLE_PROMPTS, SAMPLE_REPORT_TEXT } from './constants';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AnalysisType | null>(null);
@@ -83,7 +83,7 @@ const App: React.FC = () => {
     setAnalysisResult(null);
     setFilePreview(null);
     setActiveTab(null);
-    setIsChatOpen(false);
+    // Don't close chat on reset, user might want to continue talking
     if (fileInputRef.current) fileInputRef.current.value = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -314,21 +314,32 @@ const App: React.FC = () => {
             <button onClick={() => scrollToSection('features')} className="text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Features</button>
           </nav>
 
-          {analysisResult ? (
+          <div className="flex items-center gap-3">
+            {/* Header Ask Assistant Button */}
             <button 
-              onClick={resetApp}
-              className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center"
+              onClick={() => setIsChatOpen(true)}
+              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" /> New Analysis
+              <MessageCircle className="w-4 h-4" />
+              Ask Assistant
             </button>
-          ) : (
-            <button 
-              onClick={() => scrollToSection('tools')}
-              className="hidden md:flex px-5 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-all shadow-md active:scale-95"
-            >
-              Get Started
-            </button>
-          )}
+
+            {analysisResult ? (
+              <button 
+                onClick={resetApp}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" /> New Analysis
+              </button>
+            ) : (
+              <button 
+                onClick={() => scrollToSection('tools')}
+                className="hidden md:flex px-5 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-all shadow-md active:scale-95"
+              >
+                Get Started
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -336,7 +347,7 @@ const App: React.FC = () => {
         
         {/* State: Landing / Selection */}
         {processingState === 'idle' && !activeTab && (
-          <div className="flex flex-col animate-in fade-in duration-700">
+          <div className="flex flex-col animate-in fade-in duration-700" id="root">
             {/* Hero Section */}
             <div className="relative pt-20 pb-20 px-6 text-center overflow-hidden">
                {/* Background Decor */}
@@ -364,10 +375,11 @@ const App: React.FC = () => {
                     Start Analysis Now
                   </button>
                   <button 
-                    onClick={() => scrollToSection('features')}
-                    className="px-8 py-4 bg-white text-slate-600 border border-slate-200 rounded-full font-bold text-lg hover:bg-slate-50 transition-all w-full sm:w-auto"
+                    onClick={() => setIsChatOpen(true)}
+                    className="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-full font-bold text-lg hover:bg-slate-50 transition-all w-full sm:w-auto flex items-center justify-center gap-2"
                   >
-                    Learn More
+                    <MessageCircle className="w-5 h-5 text-teal-600" />
+                    Chat with AI Assistant
                   </button>
                 </div>
                </div>
@@ -423,30 +435,32 @@ const App: React.FC = () => {
               result={analysisResult} 
               onOpenChat={() => setIsChatOpen(true)}
             />
-            {isChatOpen && (
-              <ChatWidget 
-                analysisContext={analysisResult} 
-                onClose={() => setIsChatOpen(false)}
-              />
-            )}
-            
-            {/* Chat Trigger (Floating if closed) */}
-            {!isChatOpen && (
-              <button
-                onClick={() => setIsChatOpen(true)}
-                className="fixed bottom-8 right-8 bg-slate-900 text-white p-4 rounded-full shadow-2xl hover:bg-slate-800 transition-all hover:scale-105 z-50 flex items-center gap-3 group border border-slate-700"
-              >
-                <div className="relative">
-                  <MessageCircle className="w-6 h-6" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-teal-500 rounded-full border-2 border-slate-900"></span>
-                </div>
-                <span className="font-semibold pr-2">Ask Assistant</span>
-              </button>
-            )}
           </div>
         )}
 
       </main>
+
+      {/* GLOBAL CHAT COMPONENTS */}
+      {isChatOpen && (
+        <ChatWidget 
+          analysisContext={analysisResult || undefined} 
+          onClose={() => setIsChatOpen(false)}
+        />
+      )}
+      
+      {/* Global Chat Trigger (Floating if closed) */}
+      {!isChatOpen && (
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-8 right-8 bg-slate-900 text-white p-4 rounded-full shadow-2xl hover:bg-slate-800 transition-all hover:scale-105 z-50 flex items-center gap-3 group border border-slate-700 animate-in slide-in-from-bottom-20 duration-500"
+        >
+          <div className="relative">
+            <MessageCircle className="w-6 h-6" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-teal-500 rounded-full border-2 border-slate-900 animate-pulse"></span>
+          </div>
+          <span className="font-semibold pr-2">Ask AI Doctor</span>
+        </button>
+      )}
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-12 mt-auto">

@@ -1,3 +1,4 @@
+
 export enum AnalysisType {
   LAB_REPORT = 'LAB_REPORT',
   SYMPTOM_CHECK = 'SYMPTOM_CHECK',
@@ -12,6 +13,11 @@ export interface AnalysisResult {
     value?: string;
     status: 'normal' | 'abnormal' | 'critical' | 'informational';
     explanation: string;
+  }>;
+  trends?: Array<{
+    metric: string;
+    data: Array<{ date: string; value: number }>;
+    unit?: string;
   }>;
   recommendations: string[];
   medicalDisclaimer: string;

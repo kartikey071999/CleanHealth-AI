@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type, Schema, Modality } from "@google/genai";
-import { AnalysisResult, AnalysisType } from '../../types';
+import { AnalysisResult, AnalysisType } from '../types';
 
 const apiKey = process.env.API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
@@ -24,6 +25,27 @@ const analysisSchema: Schema = {
         required: ['name', 'status', 'explanation']
       }
     },
+    trends: {
+      type: Type.ARRAY,
+      description: "Extract historical data for metrics if multiple dates/values are present in the text to build a trend line.",
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          metric: { type: Type.STRING, description: "Name of the metric (e.g., 'Glucose')." },
+          unit: { type: Type.STRING, description: "Unit of measurement (e.g., 'mg/dL')." },
+          data: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                date: { type: Type.STRING, description: "Date of the record (e.g. 'Oct 2023')." },
+                value: { type: Type.NUMBER, description: "Numeric value." }
+              }
+            }
+          }
+        }
+      }
+    },
     recommendations: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
@@ -46,8 +68,8 @@ export const analyzeDocument = async (
   if (!apiKey) throw new Error("API Key not found");
 
   const prompt = type === AnalysisType.LAB_REPORT
-    ? "Analyze this medical document. It could be a lab report, doctor's note, or clinical summary. Extract key biomarkers, identify abnormalities, and explain them in simple layman's terms. Cross-reference values to provide a synthesized insight."
-    : "Analyze this image of a physical symptom. Describe the visual characteristics, suggest potential causes (informational only), and recommend whether immediate medical attention might be needed. Be empathetic but objective.";
+    ? "Analyze this medical document. Extract key biomarkers, identify abnormalities, and explain them. IMPORTANT: If the document contains historical data (previous results with dates), extract them into the 'trends' array for visualization. Look for sections like 'Previous Result', 'History', or comparison columns."
+    : "Analyze this image of a physical symptom. Describe the visual characteristics, suggest potential causes (informational only), and recommend whether immediate medical attention might be needed.";
 
   try {
     const parts: any[] = [{ text: prompt }];

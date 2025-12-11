@@ -1,7 +1,10 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { AnalysisResult } from '../../types';
-import { AlertTriangle, CheckCircle, Info, ShieldAlert, ArrowRight, Printer, Share2, MessageCircle, Volume2, Loader2, PauseCircle, PlayCircle, MapPin, Navigation, Star, ExternalLink } from 'lucide-react';
-import { generateAudioSummary, findNearbySpecialists, SpecialistRecommendation } from '../../services/ai/geminiService';
+import { AnalysisResult } from '../types';
+import { AlertTriangle, CheckCircle, Info, ShieldAlert, ArrowRight, Printer, Share2, MessageCircle, Volume2, Loader2, PauseCircle, PlayCircle, MapPin, Navigation, Star, ExternalLink, TrendingUp } from 'lucide-react';
+import { generateAudioSummary, findNearbySpecialists, SpecialistRecommendation } from '../services/geminiService';
+// @ts-ignore
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface AnalysisViewProps {
   result: AnalysisResult;
@@ -242,6 +245,58 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ result, onOpenChat }
               ))}
             </div>
           </section>
+
+          {/* Historical Trends Charts */}
+          {result.trends && result.trends.length > 0 && (
+            <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" /> Historical Trends
+              </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {result.trends.map((trend, idx) => (
+                  <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="flex justify-between items-center mb-6">
+                      <h4 className="font-bold text-slate-800">{trend.metric}</h4>
+                      {trend.unit && <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded">{trend.unit}</span>}
+                    </div>
+                    <div className="h-[200px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={trend.data.map(d => ({ ...d, date: d.date.split(',')[0] }))}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                          <XAxis 
+                            dataKey="date" 
+                            tick={{fontSize: 10, fill: '#94a3b8'}} 
+                            tickLine={false}
+                            axisLine={false} 
+                            dy={10}
+                          />
+                          <YAxis 
+                            domain={['auto', 'auto']} 
+                            tick={{fontSize: 10, fill: '#94a3b8'}} 
+                            tickLine={false} 
+                            axisLine={false}
+                            dx={-10}
+                          />
+                          <Tooltip 
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            itemStyle={{ color: '#0f766e', fontWeight: 600 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#0d9488" 
+                            strokeWidth={3} 
+                            dot={{ r: 4, fill: '#0d9488', strokeWidth: 2, stroke: '#fff' }}
+                            activeDot={{ r: 6 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Recommendations & Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
