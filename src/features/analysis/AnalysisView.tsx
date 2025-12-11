@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AnalysisResult } from '../types';
+import { AnalysisResult } from '../../types';
 import { AlertTriangle, CheckCircle, Info, ShieldAlert, ArrowRight, Printer, Share2, MessageCircle, Volume2, Loader2, PauseCircle, PlayCircle, MapPin, Navigation, Star, ExternalLink } from 'lucide-react';
-import { generateAudioSummary, findNearbySpecialists, SpecialistRecommendation } from '../services/geminiService';
+import { generateAudioSummary, findNearbySpecialists, SpecialistRecommendation } from '../../services/ai/geminiService';
 
 interface AnalysisViewProps {
   result: AnalysisResult;

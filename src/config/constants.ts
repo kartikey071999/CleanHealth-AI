@@ -1,4 +1,4 @@
-import { AnalysisType } from './types';
+import { AnalysisType } from '../types';
 
 export const APP_NAME = "ClearHealth AI";
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Bot, User, Minimize2 } from 'lucide-react';
-import { AnalysisResult, ChatMessage } from '../types';
-import { sendChatMessage } from '../services/geminiService';
+import { AnalysisResult, ChatMessage } from '../../types';
+import { sendChatMessage } from '../../services/ai/geminiService';
 
 interface ChatWidgetProps {
   analysisContext?: AnalysisResult;

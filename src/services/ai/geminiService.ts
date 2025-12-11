@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type, Schema, Modality } from "@google/genai";
-import { AnalysisResult, AnalysisType } from '../types';
+import { AnalysisResult, AnalysisType } from '../../types';
 
 const apiKey = process.env.API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });

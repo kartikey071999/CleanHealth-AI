@@ -1,12 +1,12 @@
 
 import React, { useState, useRef } from 'react';
 import { Upload, FileText, Activity, AlertCircle, ArrowLeft, File as FileIcon, Image as ImageIcon, X, ChevronRight, Stethoscope, FileSearch, MessageCircle, Zap, Shield, Globe, Heart, Brain } from 'lucide-react';
-import { AnalysisType, AnalysisResult, ProcessingState } from './types';
-import { analyzeDocument, FileData } from './services/geminiService';
-import { ThinkingIndicator } from './components/ThinkingIndicator';
-import { AnalysisView } from './components/AnalysisView';
-import { ChatWidget } from './components/ChatWidget';
-import { APP_NAME, SAMPLE_PROMPTS, SAMPLE_REPORT_TEXT } from './constants';
+import { AnalysisType, AnalysisResult, ProcessingState } from '../types';
+import { analyzeDocument, FileData } from '../services/ai/geminiService';
+import { ThinkingIndicator } from '../components/common/ThinkingIndicator';
+import { AnalysisView } from '../features/analysis/AnalysisView';
+import { ChatWidget } from '../features/chat/ChatWidget';
+import { APP_NAME, SAMPLE_PROMPTS, SAMPLE_REPORT_TEXT } from '../config/constants';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AnalysisType | null>(null);
