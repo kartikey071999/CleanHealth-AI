@@ -1,0 +1,9 @@
+{
+  "name": "ClearHealth AI",
+  "description": "An advanced medical intelligence tool using Gemini 3 Pro to analyze lab reports, medical documents (PDFs), and visual symptoms, translating complex data into clear, understandable insights.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
